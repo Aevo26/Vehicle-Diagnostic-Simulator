@@ -67,6 +67,32 @@ EE-Group3/
  
 ---
  
+## Driving Modes
+The user can select a driving mode at runtime which affects sensor behavior and fault likelihood:
+ 
+| Mode         | RPM Range    | Temp Range  |
+|--------------|--------------|-------------|
+| Idle         | 600–900      | 85–92°C     |
+| City Driving | 1000–3000    | 90–100°C    |
+| Highway      | 2500–4000    | 95–105°C    |
+| Heavy Load   | 3000–5500    | 100–115°C   |
+ 
+---
+ 
+## Simulation Scenarios
+Pre-built scenarios simulate specific vehicle problems that worsen over time until a fault code is triggered:
+ 
+| Scenario            | Description                                      |
+|---------------------|--------------------------------------------------|
+| Normal Drive        | All systems within safe range                    |
+| Overheating Engine  | Temp gradually climbs until P0217 triggers       |
+| Failing Battery     | Voltage drops over time until P0562 triggers     |
+| Low Oil Pressure    | Oil pressure decreases until P0524 triggers      |
+ 
+Driving modes and scenarios can be combined — for example Highway + Overheating Engine will cause the temperature to rise faster and trigger fault codes sooner.
+ 
+---
+ 
 ## Fault Codes (OBD-II Standard)
 | Code  | Description           | Trigger Condition          |
 |-------|-----------------------|----------------------------|
