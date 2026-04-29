@@ -36,8 +36,8 @@ class Dashboard:
 
         def update(_frame):
             self.sensors.update()
-            self.battery.update()
             readings = self.sensors.get_readings()
+            self.battery.update(rpm=readings["rpm"])
             readings["battery"] = self.battery.get_voltage()
 
             for key, value in readings.items():

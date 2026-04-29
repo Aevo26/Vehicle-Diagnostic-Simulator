@@ -11,6 +11,10 @@ DRIVING_MODE_PARAMS = {
     "heavy_load": {"rpm": (3000, 5500), "temp": (100, 115)},
 }
 
+_O2_RICH = 0.75   # volts — rich mixture ceiling
+_O2_LEAN = 0.15   # volts — lean mixture floor
+_O2_STEP = 0.04   # volts per tick
+
 
 class Sensors:
     def __init__(self, vehicle: Vehicle, mode: str = "city", scenario: str = "normal"):
@@ -24,26 +28,46 @@ class Sensors:
         self.oil_pressure = 45.0
         self.fuel_level = 80.0
         self.o2_voltage = 0.45
+        self._o2_going_rich = True
 
     def update(self):
         params = DRIVING_MODE_PARAMS.get(self.mode, DRIVING_MODE_PARAMS["city"])
         rpm_lo, rpm_hi = params["rpm"]
         temp_lo, temp_hi = params["temp"]
 
-        self.rpm = random.uniform(rpm_lo, rpm_hi)
+        # Smooth RPM: Gaussian delta + weak mean-reversion toward mode midpoint
+        rpm_mid = (rpm_lo + rpm_hi) / 2.0
+        rpm_delta = random.gauss(0, (rpm_hi - rpm_lo) * 0.03)
+        rpm_delta += (rpm_mid - self.rpm) * 0.05
+        self.rpm = max(rpm_lo, min(rpm_hi, self.rpm + rpm_delta))
 
+        # Smooth coolant temp: same delta approach, except overheating scenario
         if self.scenario == "overheating":
             self.coolant_temp = min(self.coolant_temp + 0.3, self.vehicle.max_temp + 10)
         else:
-            self.coolant_temp = random.uniform(temp_lo, temp_hi)
+            temp_mid = (temp_lo + temp_hi) / 2.0
+            temp_delta = random.gauss(0, (temp_hi - temp_lo) * 0.03)
+            temp_delta += (temp_mid - self.coolant_temp) * 0.05
+            self.coolant_temp = max(temp_lo, min(temp_hi, self.coolant_temp + temp_delta))
 
+        # Oil pressure: gradual drift with noise, or failing scenario
         if self.scenario == "low_oil":
             self.oil_pressure = max(self.oil_pressure - 0.2, 10.0)
         else:
-            self.oil_pressure = random.uniform(25.0, 65.0)
+            self.oil_pressure = max(10.0, min(80.0, self.oil_pressure + random.gauss(0, 1.0)))
 
         self.fuel_level = max(self.fuel_level - 0.01, 0.0)
-        self.o2_voltage = random.uniform(0.1, 0.9)
+
+        # O2 voltage: square-ish oscillation between lean (~0.15 V) and rich (~0.75 V)
+        # with small Gaussian noise on each step — matches real closed-loop lambda behavior
+        step = _O2_STEP if self._o2_going_rich else -_O2_STEP
+        self.o2_voltage += step + random.gauss(0, 0.01)
+        if self.o2_voltage >= _O2_RICH:
+            self.o2_voltage = _O2_RICH
+            self._o2_going_rich = False
+        elif self.o2_voltage <= _O2_LEAN:
+            self.o2_voltage = _O2_LEAN
+            self._o2_going_rich = True
 
         self._check_faults()
 
