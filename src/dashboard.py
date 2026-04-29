@@ -18,16 +18,15 @@ class Dashboard:
         self.report = DiagnosticReport(vehicle)
 
         self.history = {key: deque(maxlen=MAX_POINTS) for key in
-                        ["rpm", "coolant_temp", "oil_pressure", "fuel_level", "battery"]}
+                        ["rpm", "coolant_temp", "oil_pressure", "fuel_level", "battery", "o2_voltage"]}
 
     def run(self):
         fig, axes = plt.subplots(3, 2, figsize=(12, 8))
         fig.suptitle(f"Vehicle Diagnostic — {self.vehicle.get_engine_type()}", fontsize=14)
-        axes[2][1].axis("off")
 
-        keys = ["rpm", "coolant_temp", "oil_pressure", "fuel_level", "battery"]
-        labels = ["RPM", "Coolant Temp (°C)", "Oil Pressure (PSI)", "Fuel Level (%)", "Battery Voltage (V)"]
-        plot_axes = [axes[0][0], axes[0][1], axes[1][0], axes[1][1], axes[2][0]]
+        keys = ["rpm", "coolant_temp", "oil_pressure", "fuel_level", "battery", "o2_voltage"]
+        labels = ["RPM", "Coolant Temp (°C)", "Oil Pressure (PSI)", "Fuel Level (%)", "Battery Voltage (V)", "O2 Voltage (V)"]
+        plot_axes = [axes[0][0], axes[0][1], axes[1][0], axes[1][1], axes[2][0], axes[2][1]]
         lines = [ax.plot([], [])[0] for ax in plot_axes]
 
         for ax, label in zip(plot_axes, labels):
@@ -52,7 +51,7 @@ class Dashboard:
 
             return lines
 
-        ani = animation.FuncAnimation(fig, update, interval=500, blit=False)
+        ani = animation.FuncAnimation(fig, update, interval=500, blit=False, cache_frame_data=False)
         plt.tight_layout()
         plt.show()
 
