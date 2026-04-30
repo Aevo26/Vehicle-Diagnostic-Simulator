@@ -15,7 +15,7 @@ The user selects an engine type at startup and the simulator adjusts its behavio
 |------|------|------------|
 | Aevin Tweedie | Project Manager | lav115@txstate.edu |
 | Jesse Leavitt  | Developer       | dvu13@txstate.edu |
-| [Member 3]  | Developer       | @txstate.edu |
+| Brett Carter | Developer       | zoi2@txstate.edu |
  
 ---
  
