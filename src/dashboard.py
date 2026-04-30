@@ -20,7 +20,7 @@ class Dashboard:
         self.history = {key: deque(maxlen=MAX_POINTS) for key in
                         ["rpm", "coolant_temp", "oil_pressure", "fuel_level", "battery", "o2_voltage"]}
 
-    def run(self):
+    def run(self, block: bool = True, show_report: bool = True):
         fig, axes = plt.subplots(3, 2, figsize=(12, 8))
         fig.suptitle(f"Vehicle Diagnostic — {self.vehicle.get_engine_type()}", fontsize=14)
 
@@ -51,8 +51,9 @@ class Dashboard:
 
             return lines
 
-        ani = animation.FuncAnimation(fig, update, interval=500, blit=False, cache_frame_data=False)
+        self.ani = animation.FuncAnimation(fig, update, interval=500, blit=False, cache_frame_data=False)
         plt.tight_layout()
-        plt.show()
+        plt.show(block=block)
 
-        self.report.display()
+        if show_report:
+            self.report.display()

@@ -1,5 +1,8 @@
+import matplotlib.pyplot as plt
+
 from src.engine import FourCylinderEngine, V6Engine, V8Engine
 from src.dashboard import Dashboard
+from src.tkinter_dashboard import TkinterDashboard
 
 
 def select_engine():
@@ -52,8 +55,21 @@ def main():
     mode = select_mode()
     scenario = select_scenario()
 
+    use_tkinter = input("\nEnable Tkinter dashboard? (y/n): ").strip().lower() == "y"
+
     dashboard = Dashboard(engine, mode=mode, scenario=scenario)
-    dashboard.run()
+
+    if use_tkinter:
+        dashboard.run(block=False, show_report=False)
+        mpl_root = plt.get_current_fig_manager().window
+        tkinter_dashboard = TkinterDashboard(
+            dashboard.sensors, dashboard.battery, dashboard.vehicle,
+            owns_update=False, master=mpl_root,
+        )
+        tkinter_dashboard.run()
+        dashboard.report.display()
+    else:
+        dashboard.run()
 
 
 if __name__ == "__main__":
