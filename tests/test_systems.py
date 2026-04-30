@@ -53,6 +53,12 @@ class TestSensors(unittest.TestCase):
         sensors._check_faults()
         self.assertIn("P0524: Oil Pressure Too Low", engine.fault_codes)
 
-
+    def test_low_fuel_triggers_fault(self):
+        engine = FourCylinderEngine()
+        sensors = Sensors(engine, mode="city", scenario="normal")
+        sensors.fuel_level = 5.0
+        sensors.update()
+        self.assertIn("P0087: Low Fuel Pressure", engine.fault_codes)
+        
 if __name__ == "__main__":
     unittest.main()
