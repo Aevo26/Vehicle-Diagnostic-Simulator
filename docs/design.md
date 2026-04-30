@@ -1,6 +1,6 @@
 # Design Notes — OOP Vehicle Diagnostic Simulator
 
-## UML Class Diagram (text representation)
+## UML Class Diagram (PlantUML)
 
 ```
 Vehicle (ABC)
@@ -35,6 +35,39 @@ Dashboard
 DiagnosticReport
 └── display() → prints fault summary
 ```
+## UML Class Diagram (Text Representation)
+
+Vehicle (ABC)
+├── get_engine_type() [abstract]
+├── log_fault(code, description)
+├── fault_codes: list[str]
+├── rpm_min, rpm_max, max_temp
+│
+├── FourCylinderEngine  (rpm 600–6500, max_temp 105°C)
+├── V6Engine            (rpm 600–7000, max_temp 110°C)
+└── V8Engine            (rpm 700–7500, max_temp 115°C)
+
+Battery
+├── vehicle: Vehicle
+├── voltage: float
+└── update() → checks P0562 / P0563
+
+Sensors
+├── vehicle: Vehicle
+├── mode: str
+├── scenario: str
+├── update() → updates rpm, coolant_temp, oil_pressure, fuel_level, o2_voltage
+└── _check_faults() → checks P0217, P0524, P0087
+
+Dashboard
+├── vehicle: Vehicle
+├── sensors: Sensors
+├── battery: Battery
+├── report: DiagnosticReport
+└── run() → launches Matplotlib animation
+
+DiagnosticReport
+└── display() → prints fault summary
 
 ## OOP Principles Applied
 
